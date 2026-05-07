@@ -3,24 +3,36 @@ class MahasiswaController extends Controller {
     private $mahasiswaModel;
     
     public function __construct() {
-        // Mulai session untuk flash message
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $this->mahasiswaModel = $this->model('MahasiswaModel');
     }
     
+    // Method index dengan pencarian & filter
     public function index() {
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $jurusan = isset($_GET['jurusan']) ? trim($_GET['jurusan']) : '';
+        
+        if (!empty($search) || !empty($jurusan)) {
+            $mahasiswa = $this->mahasiswaModel->searchAndFilter($search, $jurusan);
+        } else {
+            $mahasiswa = $this->mahasiswaModel->getAll();
+        }
+        
         $data['title'] = 'Daftar Mahasiswa';
-        $data['mahasiswa'] = $this->mahasiswaModel->getAll();
+        $data['mahasiswa'] = $mahasiswa;
+        $data['search'] = $search;
+        $data['jurusan_filter'] = $jurusan;
         $data['success'] = $this->flash('success');
         $data['error'] = $this->flash('error');
+        
         $this->view('mahasiswa/index', $data);
     }
     
     public function create() {
         $data['title'] = 'Tambah Mahasiswa';
-        $data['old'] = $this->flash('old'); // data lama jika validasi gagal
+        $data['old'] = $this->flash('old');
         $data['error'] = $this->flash('error');
         $this->view('mahasiswa/create', $data);
     }
@@ -32,59 +44,39 @@ class MahasiswaController extends Controller {
         }
         
         $errors = [];
-        
-        // Validasi NPM
         $npm = trim($_POST['npm'] ?? '');
         if (empty($npm)) {
             $errors['npm'] = 'NPM tidak boleh kosong';
         } else {
-            // Cek keunikan NPM
             if ($this->mahasiswaModel->findByNpm($npm)) {
                 $errors['npm'] = 'NPM sudah terdaftar';
             }
         }
         
-        // Validasi Nama Lengkap
         $nama = trim($_POST['nama_lengkap'] ?? '');
-        if (empty($nama)) {
-            $errors['nama_lengkap'] = 'Nama lengkap tidak boleh kosong';
-        }
+        if (empty($nama)) $errors['nama_lengkap'] = 'Nama lengkap tidak boleh kosong';
         
-        // Validasi Fakultas
         $fakultas = trim($_POST['fakultas'] ?? '');
-        if (empty($fakultas)) {
-            $errors['fakultas'] = 'Fakultas tidak boleh kosong';
-        }
+        if (empty($fakultas)) $errors['fakultas'] = 'Fakultas tidak boleh kosong';
         
-        // Validasi Jurusan
         $allowedJurusan = ['Teknik Informatika', 'Sistem Informasi'];
         $jurusan = $_POST['jurusan'] ?? '';
-        if (!in_array($jurusan, $allowedJurusan)) {
-            $errors['jurusan'] = 'Jurusan harus Teknik Informatika atau Sistem Informasi';
-        }
+        if (!in_array($jurusan, $allowedJurusan)) $errors['jurusan'] = 'Jurusan tidak valid';
         
-        // Validasi Tempat Lahir
         $tempatLahir = trim($_POST['tempat_lahir'] ?? '');
-        if (empty($tempatLahir)) {
-            $errors['tempat_lahir'] = 'Tempat lahir tidak boleh kosong';
-        }
+        if (empty($tempatLahir)) $errors['tempat_lahir'] = 'Tempat lahir tidak boleh kosong';
         
-        // Validasi Tanggal Lahir
         $tanggalLahir = $_POST['tanggal_lahir'] ?? '';
         if (empty($tanggalLahir)) {
             $errors['tanggal_lahir'] = 'Tanggal lahir tidak boleh kosong';
-        } elseif (!strtotime($tanggalLahir)) {
-            $errors['tanggal_lahir'] = 'Format tanggal tidak valid';
+        } elseif (strtotime($tanggalLahir) > time()) {
+            $errors['tanggal_lahir'] = 'Tanggal lahir tidak boleh lebih dari hari ini';
         }
         
-        // Validasi Jenis Kelamin
         $allowedGender = ['Laki-laki', 'Perempuan'];
         $gender = $_POST['jenis_kelamin'] ?? '';
-        if (!in_array($gender, $allowedGender)) {
-            $errors['jenis_kelamin'] = 'Jenis kelamin tidak valid';
-        }
+        if (!in_array($gender, $allowedGender)) $errors['jenis_kelamin'] = 'Jenis kelamin tidak valid';
         
-        // Jika ada error, simpan flash dan redirect
         if (!empty($errors)) {
             $this->setFlash('error', 'Gagal menyimpan data. Periksa kembali input Anda.');
             $this->setFlash('old', $_POST);
@@ -93,7 +85,6 @@ class MahasiswaController extends Controller {
             exit;
         }
         
-        // Siapkan data untuk insert
         $data = [
             'npm'            => $npm,
             'nama_lengkap'   => $nama,
@@ -117,7 +108,7 @@ class MahasiswaController extends Controller {
     }
     
     public function edit($id) {
-        $mahasiswa = $this->mahasiswaModel->getById($id);
+        $mahasiswa = $this->mahasiswaModel->find($id);
         if (!$mahasiswa) {
             $this->setFlash('error', 'Data mahasiswa tidak ditemukan');
             header('Location: ' . BASEURL . 'mahasiswa/index');
@@ -135,8 +126,7 @@ class MahasiswaController extends Controller {
             exit;
         }
         
-        // Cek apakah data dengan id ini ada
-        $existing = $this->mahasiswaModel->getById($id);
+        $existing = $this->mahasiswaModel->find($id);
         if (!$existing) {
             $this->setFlash('error', 'Data mahasiswa tidak ditemukan');
             header('Location: ' . BASEURL . 'mahasiswa/index');
@@ -148,7 +138,6 @@ class MahasiswaController extends Controller {
         if (empty($npm)) {
             $errors['npm'] = 'NPM tidak boleh kosong';
         } else {
-            // Cek keunikan NPM (abaikan record sendiri)
             $byNpm = $this->mahasiswaModel->findByNpm($npm);
             if ($byNpm && $byNpm['id'] != $id) {
                 $errors['npm'] = 'NPM sudah digunakan oleh mahasiswa lain';
@@ -171,8 +160,8 @@ class MahasiswaController extends Controller {
         $tanggalLahir = $_POST['tanggal_lahir'] ?? '';
         if (empty($tanggalLahir)) {
             $errors['tanggal_lahir'] = 'Tanggal lahir tidak boleh kosong';
-        } elseif (!strtotime($tanggalLahir)) {
-            $errors['tanggal_lahir'] = 'Format tanggal tidak valid';
+        } elseif (strtotime($tanggalLahir) > time()) {
+            $errors['tanggal_lahir'] = 'Tanggal lahir tidak boleh lebih dari hari ini';
         }
         
         $allowedGender = ['Laki-laki', 'Perempuan'];
@@ -208,7 +197,7 @@ class MahasiswaController extends Controller {
     }
     
     public function show($id) {
-        $mahasiswa = $this->mahasiswaModel->getById($id);
+        $mahasiswa = $this->mahasiswaModel->find($id);
         if (!$mahasiswa) {
             $this->setFlash('error', 'Data mahasiswa tidak ditemukan');
             header('Location: ' . BASEURL . 'mahasiswa/index');
@@ -220,7 +209,7 @@ class MahasiswaController extends Controller {
     }
     
     public function delete($id) {
-        $existing = $this->mahasiswaModel->getById($id);
+        $existing = $this->mahasiswaModel->find($id);
         if (!$existing) {
             $this->setFlash('error', 'Data mahasiswa tidak ditemukan');
             header('Location: ' . BASEURL . 'mahasiswa/index');
@@ -236,7 +225,7 @@ class MahasiswaController extends Controller {
         exit;
     }
     
-    // ========== FLASH MESSAGE METHODS ==========
+    // ========== FLASH METHODS ==========
     protected function setFlash($key, $message) {
         $_SESSION['flash'][$key] = $message;
     }

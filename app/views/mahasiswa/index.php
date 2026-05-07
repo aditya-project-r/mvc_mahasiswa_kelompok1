@@ -2,41 +2,74 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-primary fw-bold"><i class="bi bi-people-fill me-2"></i>Daftar Mahasiswa</h2>
-    
-    <!-- Bagian Tombol Navigasi -->
     <div class="d-flex gap-2">
-        <!-- Tombol Kembali ke Home -->
         <a href="<?= BASEURL ?>home/index" class="btn btn-outline-secondary shadow-sm">
             <i class="bi bi-house-door me-1"></i> Beranda
         </a>
-        
-        <!-- Tombol Tambah Mahasiswa -->
         <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">
             <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
         </a>
     </div>
 </div>
 
-<!-- Flash Message Success -->
+<!-- Flash Messages -->
 <?php if (!empty($success)): ?>
     <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> <?= htmlspecialchars($success) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
 
-<!-- Flash Message Error -->
 <?php if (!empty($error)): ?>
     <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= htmlspecialchars($error) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 <?php endif; ?>
+
+<!-- Form Pencarian & Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="<?= BASEURL ?>mahasiswa/index" class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label fw-bold small text-muted">Cari (NPM / Nama)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Ketik NPM atau nama..." value="<?= htmlspecialchars($search ?? '') ?>">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold small text-muted">Filter Jurusan</label>
+                <select name="jurusan" class="form-select">
+                    <option value="">Semua Jurusan</option>
+                    <option value="Teknik Informatika" <?= isset($jurusan_filter) && $jurusan_filter == 'Teknik Informatika' ? 'selected' : '' ?>>Teknik Informatika</option>
+                    <option value="Sistem Informasi" <?= isset($jurusan_filter) && $jurusan_filter == 'Sistem Informasi' ? 'selected' : '' ?>>Sistem Informasi</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="d-flex gap-2 w-100">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i> Cari
+                    </button>
+                    <a href="<?= BASEURL ?>mahasiswa/index" class="btn btn-outline-secondary flex-grow-1">
+                        <i class="bi bi-x-circle me-1"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <?php if (empty($mahasiswa)): ?>
     <div class="alert alert-warning d-flex align-items-center shadow-sm" role="alert">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <div>Belum ada data mahasiswa dalam database.</div>
+        <div>
+            <?php if (!empty($search) || !empty($jurusan_filter)): ?>
+                Tidak ada data yang sesuai dengan pencarian/filter yang Anda terapkan.
+            <?php else: ?>
+                Belum ada data mahasiswa dalam database.
+            <?php endif; ?>
+        </div>
     </div>
 <?php else: ?>
     <div class="table-responsive card border-0 shadow-sm p-3">
@@ -91,7 +124,7 @@
     </div>
 <?php endif; ?>
 
-<!-- JavaScript untuk Konfirmasi Hapus -->
+<!-- JavaScript Konfirmasi Hapus -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const btnHapus = document.querySelectorAll('.btn-hapus');
