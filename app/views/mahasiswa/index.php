@@ -1,15 +1,8 @@
-<?php require_once '../app/views/templates/header.php'; ?>
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-primary fw-bold"><i class="bi bi-people-fill me-2"></i>Daftar Mahasiswa</h2>
-    <div class="d-flex gap-2">
-        <a href="<?= BASEURL ?>home/index" class="btn btn-outline-secondary shadow-sm">
-            <i class="bi bi-house-door me-1"></i> Beranda
-        </a>
-        <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
-        </a>
-    </div>
+    <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
+    </a>
 </div>
 
 <!-- Flash Messages -->
@@ -61,84 +54,85 @@
 </div>
 
 <?php if (empty($mahasiswa)): ?>
-    <div class="alert alert-warning d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <div>
-            <?php if (!empty($search) || !empty($jurusan_filter)): ?>
-                Tidak ada data yang sesuai dengan pencarian/filter yang Anda terapkan.
-            <?php else: ?>
-                Belum ada data mahasiswa dalam database.
-            <?php endif; ?>
-        </div>
+    <div class="alert alert-warning shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> Data mahasiswa tidak ditemukan.
     </div>
 <?php else: ?>
-    <div class="table-responsive card border-0 shadow-sm p-3">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th class="ps-3">ID</th>
-                    <th>NPM</th>
-                    <th>Nama Lengkap</th>
-                    <th>Jurusan</th>
-                    <th>L/P</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($mahasiswa as $row): ?>
-                <tr>
-                    <td class="fw-bold text-muted ps-3"><?= $row['id'] ?></td>
-                    <td><span class="badge bg-light text-dark border fw-normal"><?= htmlspecialchars($row['npm']) ?></span></td>
-                    <td class="fw-medium"><?= htmlspecialchars($row['nama_lengkap']) ?></td>
-                    <td><?= htmlspecialchars($row['jurusan']) ?></td>
-                    <td><?= $row['jenis_kelamin'] == 'Laki-laki' ? 'L' : 'P' ?></td>
-                    <td class="text-center">
-                        <?php if($row['status_id'] == 1): ?>
-                            <span class="badge rounded-pill bg-success-subtle text-success border border-success px-3">
-                                <i class="bi bi-check-circle-fill me-1"></i> Aktif
-                            </span>
-                        <?php else: ?>
-                            <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger px-3">
-                                <i class="bi bi-x-circle-fill me-1"></i> Nonaktif
-                            </span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="text-center">
-                        <div class="btn-group" role="group">
-                            <a href="<?= BASEURL ?>mahasiswa/show/<?= $row['id'] ?>" class="btn btn-sm btn-outline-info" title="Detail">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="<?= BASEURL ?>mahasiswa/edit/<?= $row['id'] ?>" class="btn btn-sm btn-outline-warning" title="Edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-danger btn-hapus" data-id="<?= $row['id'] ?>" data-nama="<?= htmlspecialchars($row['nama_lengkap']) ?>" title="Hapus">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <div class="card border-0 shadow-sm p-3">
+        <div class="table-responsive">
+            <!-- Tuntutan nomor 6: table-striped & table-bordered -->
+            <table class="table table-striped table-bordered table-hover align-middle mb-0">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>NPM</th>
+                        <th>Nama Lengkap</th>
+                        <th>Jurusan</th>
+                        <th>L/P</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($mahasiswa as $row): ?>
+                    <tr>
+                        <td class="text-center fw-bold text-muted"><?= $row['id'] ?></td>
+                        <td class="text-center"><span class="badge bg-light text-dark border"><?= htmlspecialchars($row['npm']) ?></span></td>
+                        <td class="fw-medium"><?= htmlspecialchars($row['nama_lengkap']) ?></td>
+                        <td><?= htmlspecialchars($row['jurusan']) ?></td>
+                        <td class="text-center"><?= $row['jenis_kelamin'] == 'Laki-laki' ? 'L' : 'P' ?></td>
+                        <td class="text-center">
+                            <?php if($row['status_id'] == 1): ?>
+                                <span class="badge bg-success">Aktif</span>
+                            <?php else: ?>
+                                <span class="badge bg-danger">Nonaktif</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="<?= BASEURL ?>mahasiswa/show/<?= $row['id'] ?>" class="btn btn-sm btn-outline-info" title="Detail"><i class="bi bi-eye"></i></a>
+                                <a href="<?= BASEURL ?>mahasiswa/edit/<?= $row['id'] ?>" class="btn btn-sm btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalKonfirmasiHapus" onclick="siapkanHapus('<?= $row['id'] ?>', '<?= addslashes(htmlspecialchars($row['nama_lengkap'])) ?>')" title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 <?php endif; ?>
 
-<!-- JavaScript Konfirmasi Hapus -->
+<!-- MODAL KONFIRMASI HAPUS -->
+<div class="modal fade" id="modalKonfirmasiHapus" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formEksekusiHapus" method="GET" action="">
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-trash3 text-danger mb-3" style="font-size: 3rem; display: block;"></i>
+                    <p class="mb-1 fs-5 fw-medium">Apakah Anda yakin ingin menghapus data ini?</p>
+                    <p class="text-muted small">Mahasiswa bernama <strong id="namaMahasiswaModal" class="text-dark"></strong> akan dihapus permanen.</p>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">Ya, Hapus Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnHapus = document.querySelectorAll('.btn-hapus');
-        btnHapus.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const id = this.getAttribute('data-id');
-                const nama = this.getAttribute('data-nama');
-                if (confirm(`Apakah Anda yakin ingin menghapus mahasiswa "${nama}"?`)) {
-                    window.location.href = '<?= BASEURL ?>mahasiswa/delete/' + id;
-                }
-            });
-        });
-    });
+function siapkanHapus(id, nama) {
+    document.getElementById('namaMahasiswaModal').textContent = nama;
+    document.getElementById('formEksekusiHapus').setAttribute('action', `<?= BASEURL ?>mahasiswa/delete/${id}`);
+}
 </script>
 
 <?php require_once '../app/views/templates/footer.php'; ?>

@@ -1,8 +1,5 @@
-<?php require_once '../app/views/templates/header.php'; ?>
-
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <!-- Header Halaman -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="text-primary fw-bold">
                 <i class="bi bi-person-plus-fill me-2"></i>Tambah Mahasiswa Baru
@@ -12,21 +9,18 @@
             </a>
         </div>
 
-        <!-- Flash Message Error Global -->
         <?php if (!empty($error)): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i> <?= htmlspecialchars($error) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
 
-        <!-- Card Form -->
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 <form action="<?= BASEURL ?>mahasiswa/store" method="POST" id="formMahasiswa">
                     
                     <div class="row">
-                        <!-- NPM -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">NPM *</label>
                             <div class="input-group">
@@ -40,7 +34,6 @@
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Nama Lengkap -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Nama Lengkap *</label>
                             <div class="input-group">
@@ -56,7 +49,6 @@
                     </div>
 
                     <div class="row">
-                        <!-- Fakultas -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Fakultas *</label>
                             <div class="input-group">
@@ -70,11 +62,10 @@
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Jurusan -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Jurusan *</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-mortboard"></i></span>
+                                <span class="input-group-text bg-light"><i class="bi bi-mortarboard"></i></span>
                                 <select name="jurusan" class="form-select <?= isset($errors['jurusan']) ? 'is-invalid' : '' ?>" required>
                                     <option value="" selected disabled>Pilih Jurusan</option>
                                     <option value="Teknik Informatika" <?= (isset($old['jurusan']) && $old['jurusan'] == 'Teknik Informatika') ? 'selected' : '' ?>>Teknik Informatika</option>
@@ -88,7 +79,6 @@
                     </div>
 
                     <div class="row">
-                        <!-- Tempat Lahir -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Tempat Lahir *</label>
                             <div class="input-group">
@@ -102,7 +92,6 @@
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Tanggal Lahir dengan batasan max = hari ini -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Tanggal Lahir *</label>
                             <div class="input-group">
@@ -123,13 +112,12 @@
                     </div>
 
                     <div class="row">
-                        <!-- Jenis Kelamin (Radio Button) -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted text-uppercase">Jenis Kelamin *</label>
                             <div class="mt-2">
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="jenis_kelamin" id="genderLaki" value="Laki-laki" 
-                                        <?= (isset($old['jenis_kelamin']) && $old['jenis_kelamin'] == 'Laki-laki') ? 'checked' : '' ?> required>
+                                        <?= (!isset($old['jenis_kelamin']) || $old['jenis_kelamin'] == 'Laki-laki') ? 'checked' : '' ?> required>
                                     <label class="form-check-label" for="genderLaki">
                                         <i class="bi bi-gender-male"></i> Laki-laki
                                     </label>
@@ -147,14 +135,13 @@
                             <?php endif; ?>
                         </div>
                         
-                        <!-- Status -->
                         <div class="col-md-6 mb-4">
                             <label class="form-label fw-bold small text-muted text-uppercase">Status Awal</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-toggle-on"></i></span>
                                 <select name="status_id" class="form-select">
-                                    <option value="1" <?= (isset($old['status_id']) && $old['status_id'] == '1') ? 'selected' : '' ?>>Aktif</option>
-                                    <option value="0" <?= (isset($old['status_id']) && $old['status_id'] == '0') ? 'selected' : '' ?>>Nonaktif</option>
+                                    <option value="1" <?= (!isset($old['status_id']) || $old['status_id'] == '1') ? 'selected' : '' ?>>Aktif</option>
+                                    <option value="2" <?= (isset($old['status_id']) && $old['status_id'] == '2') ? 'selected' : '' ?>>Nonaktif</option>
                                 </select>
                             </div>
                         </div>
@@ -180,12 +167,10 @@
     </div>
 </div>
 
-<!-- Optional: JavaScript tambahan untuk memblokir input tanggal di masa depan jika browser tidak support HTML5 max -->
 <script>
     (function() {
         const tglLahir = document.querySelector('input[name="tanggal_lahir"]');
         if (tglLahir) {
-            // Pastikan nilai max sudah di-set dari server, tapi jika user memanipulasi lewat devtools, tetap kita cegah dengan JS
             tglLahir.addEventListener('change', function() {
                 let today = new Date().toISOString().split('T')[0];
                 if (this.value > today) {
@@ -196,5 +181,3 @@
         }
     })();
 </script>
-
-<?php require_once '../app/views/templates/footer.php'; ?>
