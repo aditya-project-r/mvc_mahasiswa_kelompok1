@@ -112,9 +112,15 @@
                             <a href="<?= BASEURL ?>mahasiswa/edit/<?= $row['id'] ?>" class="btn btn-sm btn-outline-warning" title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="#" class="btn btn-sm btn-outline-danger btn-hapus" data-id="<?= $row['id'] ?>" data-nama="<?= htmlspecialchars($row['nama_lengkap']) ?>" title="Hapus">
+                            <!-- Menggunakan onclick langsung untuk oper data, menghindari penumpukan event listener -->
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-danger" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalKonfirmasiHapus" 
+                                    onclick="siapkanHapus('<?= $row['id'] ?>', '<?= addslashes(htmlspecialchars($row['nama_lengkap'])) ?>')"
+                                    title="Hapus">
                                 <i class="bi bi-trash"></i>
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -124,21 +130,36 @@
     </div>
 <?php endif; ?>
 
-<!-- JavaScript Konfirmasi Hapus -->
+<!-- ================= MODAL KONFIRMASI HAPUS BOOTSTRAP (FORM BASED) ================= -->
+<div class="modal fade" id="modalKonfirmasiHapus" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalHapusLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i>Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Menggunakan Form untuk menjamin eksekusi tunggal -->
+            <form id="formEksekusiHapus" method="GET" action="">
+                <div class="modal-body p-4 text-center">
+                    <i class="bi bi-trash3 text-danger mb-3" style="font-size: 3rem; display: block;"></i>
+                    <p class="mb-1 fs-5 fw-medium">Apakah Anda yakin ingin menghapus data ini?</p>
+                    <p class="text-muted small">Mahasiswa bernama <strong id="namaMahasiswaModal" class="text-dark"></strong> akan dihapus permanen dari sistem.</p>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">Ya, Hapus Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const btnHapus = document.querySelectorAll('.btn-hapus');
-        btnHapus.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const id = this.getAttribute('data-id');
-                const nama = this.getAttribute('data-nama');
-                if (confirm(`Apakah Anda yakin ingin menghapus mahasiswa "${nama}"?`)) {
-                    window.location.href = '<?= BASEURL ?>mahasiswa/delete/' + id;
-                }
-            });
-        });
-    });
+// Fungsi global, dipanggil sekali setiap tombol sampah diklik
+function siapkanHapus(id, nama) {
+    document.getElementById('namaMahasiswaModal').textContent = nama;
+    document.getElementById('formEksekusiHapus').setAttribute('action', `<?= BASEURL ?>mahasiswa/delete/${id}`);
+}
 </script>
 
 <?php require_once '../app/views/templates/footer.php'; ?>
