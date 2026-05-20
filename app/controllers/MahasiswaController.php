@@ -225,6 +225,113 @@ class MahasiswaController extends Controller {
         exit;
     }
     
+    // ========== EXPORT CSV ==========
+    public function exportCSV() {
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $jurusan = isset($_GET['jurusan']) ? trim($_GET['jurusan']) : '';
+        
+        if (!empty($search) || !empty($jurusan)) {
+            $data = $this->mahasiswaModel->searchAndFilter($search, $jurusan);
+        } else {
+            $data = $this->mahasiswaModel->getAll();
+        }
+        
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="mahasiswa_' . date('Ymd_His') . '.csv"');
+        
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for UTF-8
+        fputcsv($output, ['ID', 'NPM', 'Nama Lengkap', 'Fakultas', 'Jurusan', 'Tempat Lahir', 'Tanggal Lahir', 'Jenis Kelamin', 'Status']);
+        
+        foreach ($data as $row) {
+            $status = ($row['status_id'] == 1) ? 'Aktif' : 'Nonaktif';
+            fputcsv($output, [
+                $row['id'],
+                $row['npm'],
+                $row['nama_lengkap'],
+                $row['fakultas'],
+                $row['jurusan'],
+                $row['tempat_lahir'],
+                $row['tanggal_lahir'],
+                $row['jenis_kelamin'],
+                $status
+            ]);
+        }
+        fclose($output);
+        exit;
+    }
+    
+    // ========== EXPORT PDF ==========
+    public function exportPDF() {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+        
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $jurusan = isset($_GET['jurusan']) ? trim($_GET['jurusan']) : '';
+        
+        if (!empty($search) || !empty($jurusan)) {
+            $data = $this->mahasiswaModel->searchAndFilter($search, $jurusan);
+        } else {
+            $data = $this->mahasiswaModel->getAll();
+        }
+        
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Laporan Data Mahasiswa</title>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 12px; }
+                h2 { text-align: center; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th, td { border: 1px solid #333; padding: 6px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .footer { margin-top: 20px; font-size: 10px; text-align: center; }
+            </style>
+        </head>
+        <body>
+            <h2>Daftar Mahasiswa</h2>
+            <p>Filter: ' . ($search ? "Nama/NPM = $search" : 'Semua') . ($jurusan ? " | Jurusan = $jurusan" : '') . '</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th><th>NPM</th><th>Nama Lengkap</th><th>Fakultas</th><th>Jurusan</th>
+                        <th>Tempat Lahir</th><th>Tgl Lahir</th><th>Jenis Kelamin</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>';
+        
+        $no = 1;
+        foreach ($data as $row) {
+            $status = ($row['status_id'] == 1) ? 'Aktif' : 'Nonaktif';
+            $html .= '<tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . htmlspecialchars($row['npm']) . '</td>
+                        <td>' . htmlspecialchars($row['nama_lengkap']) . '</td>
+                        <td>' . htmlspecialchars($row['fakultas']) . '</td>
+                        <td>' . htmlspecialchars($row['jurusan']) . '</td>
+                        <td>' . htmlspecialchars($row['tempat_lahir']) . '</td>
+                        <td>' . $row['tanggal_lahir'] . '</td>
+                        <td>' . htmlspecialchars($row['jenis_kelamin']) . '</td>
+                        <td>' . $status . '</td>
+                    </tr>';
+        }
+        
+        $html .= '</tbody>
+            </table>
+            <div class="footer">Dicetak pada: ' . date('d-m-Y H:i:s') . '</div>
+        </body>
+        </html>';
+        
+        $options = new Dompdf\Options();
+        $options->set('defaultFont', 'Arial');
+        $dompdf = new Dompdf\Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream('mahasiswa_' . date('Ymd_His') . '.pdf', ['Attachment' => true]);
+        exit;
+    }
+    
     // ========== FLASH METHODS ==========
     protected function setFlash($key, $message) {
         $_SESSION['flash'][$key] = $message;

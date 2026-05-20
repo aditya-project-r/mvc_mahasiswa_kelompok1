@@ -44,7 +44,7 @@ class Controller {
 
     // Method core untuk membuat Flash Message Session
     protected function setFlash($key, $message) {
-        if (!session_id()) {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $_SESSION['flash'][$key] = $message;
@@ -52,11 +52,30 @@ class Controller {
 
     // Method core untuk memanggil dan menghapus Flash Message Session (Post-Redirect)
     protected function flash($key) {
-        if (!session_id()) {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $message = $_SESSION['flash'][$key] ?? '';
         unset($_SESSION['flash'][$key]);
         return $message;
+    }
+
+    // Helper untuk format tanggal Indonesia (opsional)
+    protected function formatTanggal($tanggal, $format = 'd F Y') {
+        if (empty($tanggal) || $tanggal == '0000-00-00') return '-';
+        $timestamp = strtotime($tanggal);
+        $bulan = [
+            1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        $hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        
+        if ($format == 'd F Y') {
+            return date('d', $timestamp) . ' ' . $bulan[(int)date('n', $timestamp)] . ' ' . date('Y', $timestamp);
+        } elseif ($format == 'l, d F Y') {
+            return $hari[date('w', $timestamp)] . ', ' . date('d', $timestamp) . ' ' . $bulan[(int)date('n', $timestamp)] . ' ' . date('Y', $timestamp);
+        } else {
+            return date($format, $timestamp);
+        }
     }
 }
