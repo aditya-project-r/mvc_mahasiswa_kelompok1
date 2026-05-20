@@ -1,5 +1,3 @@
-<?php require_once '../app/views/templates/header.php'; ?>
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-primary fw-bold"><i class="bi bi-people-fill me-2"></i>Daftar Mahasiswa</h2>
     <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">

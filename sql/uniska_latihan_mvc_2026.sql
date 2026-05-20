@@ -29,3 +29,17 @@ INSERT INTO mahasiswa (npm, nama_lengkap, fakultas, jurusan, tempat_lahir, tangg
 
 -- Tampilkan data untuk verifikasi
 SELECT * FROM mahasiswa;
+
+-- Buat tabel users
+CREATE TABLE IF NOT EXISTS users (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert data default (password: 'password' untuk kedua akun)
+INSERT INTO users (username, password, role) VALUES
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('user', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user');

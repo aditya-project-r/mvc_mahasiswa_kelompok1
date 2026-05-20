@@ -1,5 +1,3 @@
-<?php require_once '../app/views/templates/header.php'; ?>
-
 <div class="row justify-content-center">
     <div class="col-md-8">
         <!-- Header Section -->

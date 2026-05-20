@@ -78,4 +78,27 @@ class Controller {
             return date($format, $timestamp);
         }
     }
+
+    // ========== METHOD UNTUK AUTENTIKASI & OTORISASI ==========
+    
+    // Cek apakah user sudah login
+    protected function checkLogin() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . BASEURL . 'auth/login');
+            exit;
+        }
+    }
+    
+    // Cek apakah role user diizinkan (array role yang diperbolehkan)
+    protected function checkRole($allowedRoles = []) {
+        $this->checkLogin(); // pastikan login dulu
+        if (!empty($allowedRoles) && !in_array($_SESSION['role'], $allowedRoles)) {
+            header('Location: ' . BASEURL . 'mahasiswa/index?error=Anda tidak memiliki akses');
+            exit;
+        }
+    }
 }
+?>
