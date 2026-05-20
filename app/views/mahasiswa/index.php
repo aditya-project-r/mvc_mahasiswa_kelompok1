@@ -1,15 +1,8 @@
-<?php require_once '../app/views/templates/header.php'; ?>
-
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="text-primary fw-bold"><i class="bi bi-people-fill me-2"></i>Daftar Mahasiswa</h2>
-    <div class="d-flex gap-2">
-        <a href="<?= BASEURL ?>home/index" class="btn btn-outline-secondary shadow-sm">
-            <i class="bi bi-house-door me-1"></i> Beranda
-        </a>
-        <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
-        </a>
-    </div>
+    <a href="<?= BASEURL ?>mahasiswa/create" class="btn btn-primary shadow-sm">
+        <i class="bi bi-plus-circle me-1"></i> Tambah Mahasiswa
+    </a>
 </div>
 
 <!-- Flash Messages -->
@@ -61,15 +54,8 @@
 </div>
 
 <?php if (empty($mahasiswa)): ?>
-    <div class="alert alert-warning d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <div>
-            <?php if (!empty($search) || !empty($jurusan_filter)): ?>
-                Tidak ada data yang sesuai dengan pencarian/filter yang Anda terapkan.
-            <?php else: ?>
-                Belum ada data mahasiswa dalam database.
-            <?php endif; ?>
-        </div>
+    <div class="alert alert-warning shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> Data mahasiswa tidak ditemukan.
     </div>
 <?php else: ?>
     <div class="table-responsive card border-0 shadow-sm p-3">
